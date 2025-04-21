@@ -1,80 +1,122 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>AI 抽卡小遊戲</title>
+  <title>AI 提示詞抽卡遊戲</title>
   <style>
     body {
-      background-color: #fff8fc;
+      background-color: #fdf6fa;
       font-family: "Noto Sans TC", sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
+      text-align: center;
+      padding: 30px;
     }
     h1 {
-      color: #d95fa7;
+      color: #c25299;
     }
-    #card {
-      width: 360px;
-      height: 240px;
-      border: 4px dashed #d1a4c9;
-      border-radius: 12px;
-      margin: 20px;
+    .card-area {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .card-block {
+      width: 260px;
+    }
+    .card-block h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #7c3a8f;
+    }
+    .card {
+      width: 100%;
+      height: 180px;
+      border: 3px dashed #d199d1;
+      border-radius: 10px;
       background-size: cover;
       background-position: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      transition: transform 0.4s ease, box-shadow 0.4s ease;
-    }
-    #card.flash {
-      box-shadow: 0 0 20px #ffbdf0;
+      margin-bottom: 10px;
     }
     button {
-      background-color: #ffb8e2;
-      color: #fff;
+      background-color: #ffb3e0;
       border: none;
-      padding: 10px 20px;
-      font-size: 18px;
+      padding: 10px 16px;
       border-radius: 8px;
+      color: white;
+      font-size: 16px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
     button:hover {
-      background-color: #f58fc3;
+      background-color: #ff86cd;
+    }
+    #result {
+      margin-top: 40px;
+      font-size: 18px;
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <h1>✨ 點一下抽一張卡 ✨</h1>
-  <div id="card"></div>
-  <button onclick="drawCard()">抽卡！</button>
-  <audio id="bgm" autoplay loop>
-    <source src="audio/bgm.mp3" type="audio/mp3">
-  </audio>
-  <audio id="se">
-    <source src="audio/se.mp3" type="audio/mp3">
-  </audio>
+  <h1>🎴 AI提示詞四抽卡小遊戲 🎴</h1>
+  <div class="card-area">
+    <div class="card-block">
+      <h2>🧍‍♀️ 人物卡</h2>
+      <div id="card-person" class="card"></div>
+      <button onclick="drawCard('人物卡')">抽卡！</button>
+    </div>
+    <div class="card-block">
+      <h2>🏞️ 位置卡</h2>
+      <div id="card-place" class="card"></div>
+      <button onclick="drawCard('位置卡')">抽卡！</button>
+    </div>
+    <div class="card-block">
+      <h2>🕺 動作卡</h2>
+      <div id="card-action" class="card"></div>
+      <button onclick="drawCard('動作卡')">抽卡！</button>
+    </div>
+    <div class="card-block">
+      <h2>🎨 畫風卡</h2>
+      <div id="card-style" class="card"></div>
+      <button onclick="drawCard('畫風卡')">抽卡！</button>
+    </div>
+  </div>
+
+  <div id="result"></div>
 
   <script>
-    const images = Array.from({length: 30}, (_, i) => `images/${i + 1}.png`);
-    const card = document.getElementById("card");
-    const bgm = document.getElementById("bgm");
-    const se = document.getElementById("se");
+    const categories = {
+      "人物卡": Array.from({ length: 8 }, (_, i) => `images/人物卡_${i+1}.png`),
+      "位置卡": Array.from({ length: 7 }, (_, i) => `images/位置卡_${i+1}.png`),
+      "動作卡": Array.from({ length: 8 }, (_, i) => `images/動作卡_${i+1}.png`),
+      "畫風卡": Array.from({ length: 7 }, (_, i) => `images/畫風卡_${i+1}.png`)
+    };
 
-    function drawCard() {
-      const random = Math.floor(Math.random() * images.length);
-      card.classList.remove("flash");
-      void card.offsetWidth; // reset animation
-      card.style.transform = "rotateY(90deg)";
-      setTimeout(() => {
-        card.style.backgroundImage = `url('${images[random]}')`;
-        card.style.transform = "rotateY(0deg)";
-        card.classList.add("flash");
-        se.play();
-      }, 300);
+    const selected = {};
+
+    function drawCard(category) {
+      const list = categories[category];
+      const index = Math.floor(Math.random() * list.length);
+      const img = list[index];
+      const idMap = {
+        "人物卡": "card-person",
+        "位置卡": "card-place",
+        "動作卡": "card-action",
+        "畫風卡": "card-style"
+      };
+      selected[category] = img;
+      document.getElementById(idMap[category]).style.backgroundImage = `url('${img}')`;
+      updateResult();
+    }
+
+    function updateResult() {
+      if (selected["人物卡"] && selected["位置卡"] && selected["動作卡"] && selected["畫風卡"]) {
+        const resultText = `✨ 提示詞咒語：一位 ${getText(selected["人物卡"])}，在 ${getText(selected["位置卡"])}，${getText(selected["動作卡"])}，畫風為 ${getText(selected["畫風卡"])}。`;
+        document.getElementById("result").innerText = resultText;
+      }
+    }
+
+    function getText(filename) {
+      return filename.split("_")[1].split(".")[0];
     }
   </script>
 </body>
