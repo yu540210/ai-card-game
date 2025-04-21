@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI 抽卡小遊戲</title>
+  <style>
+    body {
+      background-color: #fff8fc;
+      font-family: "Noto Sans TC", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      color: #d95fa7;
+    }
+    #card {
+      width: 360px;
+      height: 240px;
+      border: 4px dashed #d1a4c9;
+      border-radius: 12px;
+      margin: 20px;
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    #card.flash {
+      box-shadow: 0 0 20px #ffbdf0;
+    }
+    button {
+      background-color: #ffb8e2;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #f58fc3;
+    }
+  </style>
+</head>
+<body>
+  <h1>✨ 點一下抽一張卡 ✨</h1>
+  <div id="card"></div>
+  <button onclick="drawCard()">抽卡！</button>
+  <audio id="bgm" autoplay loop>
+    <source src="audio/bgm.mp3" type="audio/mp3">
+  </audio>
+  <audio id="se">
+    <source src="audio/se.mp3" type="audio/mp3">
+  </audio>
+
+  <script>
+    const images = Array.from({length: 30}, (_, i) => `images/${i + 1}.png`);
+    const card = document.getElementById("card");
+    const bgm = document.getElementById("bgm");
+    const se = document.getElementById("se");
+
+    function drawCard() {
+      const random = Math.floor(Math.random() * images.length);
+      card.classList.remove("flash");
+      void card.offsetWidth; // reset animation
+      card.style.transform = "rotateY(90deg)";
+      setTimeout(() => {
+        card.style.backgroundImage = `url('${images[random]}')`;
+        card.style.transform = "rotateY(0deg)";
+        card.classList.add("flash");
+        se.play();
+      }, 300);
+    }
+  </script>
+</body>
+</html>
